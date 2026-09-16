@@ -1,53 +1,42 @@
 #include <console.h>
+#include <stdint.h>
 
-#define VGA ((u16*)0xB8000)
-#define CONSOLE_MAX_WIDTH  80
-#define CONSOLE_MAX_HEIGHT 25
-#define CONSOLE_MAX_CELLS (CONSOLE_MAX_WIDTH * CONSOLE_MAX_HEIGHT)
+#define  __VGA ((uint16_t*)0xB8000)
+axes_t   __console_state_axes = {.x = 0, .y = 0};
+colour_t __console_state_tone = white;
 
-axis_t   __console_vga_axis   = {.x=0, .y=0};
-colour_t __console_vga_colour = white;
-
-// primitive methods
-void __console_set_axis(chr c, axis_t i)
+void __console_set_axes(axes_t axes, char value)
 {
-    VGA[(i.y*CONSOLE_MAX_WIDTH) + i.x] = 
-        (__console_vga_colour << 8) | c;
+    __VGA[(axes.y * CONSOLE_MAX_WIDTH) + axes.x] = 
+        (__console_state_tone << 8) | value;
 }
 
-// standard methods
-void __console_colour(colour_t colour)
-{ 
-    __console_vga_colour = colour; 
+void colour(colour_t colour)
+{
+    __console_state_tone = colour;
 }
 
-void __console_clear()
+void clear(void)
 {
-    for (u16 x = 0; x < CONSOLE_MAX_WIDTH; x++)
+    for (uint16_t x = 0; x < CONSOLE_MAX_WIDTH; x++)
     {
-        for (u16 y = 0; y < CONSOLE_MAX_HEIGHT; y++)
-            __console_set_axis('\0', (axis_t){.x=x, .y=y});
+        for (uint16_t y = 0; y < CONSOLE_MAX_HEIGHT; y++)
+            __console_set_axes((axes_t){.x = x, .y = y}, 0);
     }
 }
 
-void __console_write(cstr text)
+void print(const char* text)
 {
     while (*text)
     {
         if (*text == '\n')
         {
-            __console_vga_axis.y++;
-            __console_vga_axis.x=0;
+            __console_state_axes.y++;
+            __console_state_axes.x=0;
             text++; continue;
         }
 
-        __console_set_axis(*text++, __console_vga_axis);
-        __console_vga_axis.x++;
+        __console_set_axes(__console_state_axes, *text++);
+        __console_state_axes.x++;
     }
 }
-
-const struct __console_namespace Console = {
-    .clear  = &__console_clear,
-    .write  = &__console_write,
-    .colour = &__console_colour
-};

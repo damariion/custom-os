@@ -1,3 +1,10 @@
 CompileFlags:
-  Add: [-xc, -std=gnu99, -ffreestanding, -nostdlib]
-  Compiler: i686-elf-gcc
+    Compiler: i686-elf-gcc
+    Add:
+        - -xc
+        - -ffreestanding
+        - -nostdlib
+        - -I/Users/damarion/Repositories/custom-os/src/include
+        - -std=gnu99
+        - -Wall
+        - -Wextra

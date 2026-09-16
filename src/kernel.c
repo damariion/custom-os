@@ -1,7 +1,7 @@
-#include <types/basic.h>
 #include <console.h>
+#include <memory.h>
 
 void kmain()
 {
-    Console.write("Hello world!\nHope you're doing well!");
+    print("Hello world!");
 }

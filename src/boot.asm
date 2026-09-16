@@ -61,7 +61,7 @@ init.protected:
 
     ; place kernel in memory
     mov ebx, 1
-    mov ecx, 8
+    mov ecx, 32
     mov edi, 0x10000
     call disk.read
 
@@ -105,6 +105,10 @@ disk.read:; (sector->ebx, count->ecx, output->edi)
     mov edx, 0x1F7
     mov al, 0x20
     out dx, al
+
+    ; TODO: fix ATA PIO bug
+    ; ! don't read all sectors at once
+    ; ! verify BSY, DRQ per sector.
 
 .await:
 

@@ -1,27 +1,13 @@
 #pragma once
-#include <types/basic.h>
+#include <stdint.h>
 
-typedef enum {
-    black,
-    blue,
-    green,
-    cyan,
-    red,
-    magenta,
-    brown,
-    white,
-    grey,
-    yellow = 0xE
-} colour_t;
+#define CONSOLE_MAX_WIDTH  80
+#define CONSOLE_MAX_HEIGHT 25
+#define CONSOLE_MAX_CELLS (CONSOLE_MAX_WIDTH * CONSOLE_MAX_HEIGHT)
 
-typedef struct
-{
-    u8 x;
-    u8 y;
-} axis_t;
+typedef struct { uint8_t x; uint8_t y; } axes_t;
+typedef enum { black, blue, green, cyan, red, magenta, brown, white, grey, yellow = 0xE } colour_t;
 
-struct __console_namespace {
-    void (*clear)();
-    void (*write)(cstr text);
-    void (*colour)(colour_t name);
-}; extern const struct __console_namespace Console;
+extern void clear(void);
+extern void print(const char* text);
+extern void colour(colour_t colour);
