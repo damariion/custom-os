@@ -24,7 +24,7 @@ init.real:
     or al, 1
     mov cr0, eax
 
-    jmp 0x8:init.privileged
+    jmp 0x8:init.protected
 
 ; global descriptor table
 gdt.null:
@@ -47,7 +47,7 @@ gdt.desc:
     dd gdt.null
 
 [BITS 32]
-init.privileged:
+init.protected:
 
     ; stabilise segments
     mov ax, 0x10
@@ -61,7 +61,7 @@ init.privileged:
 
     ; place kernel in memory
     mov ebx, 1
-    mov ecx, 2
+    mov ecx, 8
     mov edi, 0x10000
     call disk.read
 
