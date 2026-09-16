@@ -1,6 +1,4 @@
 #include <memory.h>
-#include <stdbool.h>
-#include <stdint.h>
 
 void memset(void* dest, uint8_t value, uint32_t size)
 {

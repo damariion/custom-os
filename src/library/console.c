@@ -1,5 +1,4 @@
 #include <console.h>
-#include <stdint.h>
 
 #define  __VGA ((uint16_t*)0xB8000)
 axes_t   __console_state_axes = {.x = 0, .y = 0};
