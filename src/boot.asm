@@ -60,7 +60,7 @@ init.protected:
     mov esp, ebp
 
     ; place kernel in memory
-    mov cl, 32
+    mov cl, 31
     mov edi, 0x10000
     call disk.read
 

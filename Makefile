@@ -3,28 +3,31 @@ NAME = os-build
 TYPE = iso
 
 # executed before 'c' (empty means nothing)
-DBG_CMD =
+DBG_CMD = break _kmain
 
 # ? FLAGS
 FLAG_LD = -T linker.ld
-FLAG_CC = -g -O0 -ffreestanding -nostdlib -Isrc/include -Wall -Wextra
+FLAG_CC = -g -O0 -ffreestanding -nostdlib -mgeneral-regs-only -Isrc/include -Wall -Wextra
 
 # ? PATHS
 PATH_SRC = src
 PATH_OUT = out
 PATH_LIB = src/library
+PATH_INT = $(PATH_LIB)/interrupts
 PATH_TMP = out/cache
 FILE_OUT = $(PATH_OUT)/$(NAME).$(TYPE)
 
 # ? TREES
 TREE_BINARYS = $(PATH_TMP)/boot.bin $(PATH_TMP)/kernel.bin
 TREE_OBJECTS = $(PATH_TMP)/kernel.asm.o $(TREE_LIBRARY) $(PATH_TMP)/kernel.c.o
-TREE_LIBRARY = $(PATH_TMP)/memory.o $(PATH_TMP)/console.o
+TREE_LIBRARY = $(PATH_TMP)/memory.o $(PATH_TMP)/console.o $(PATH_TMP)/interrupt.o \
+			   $(PATH_TMP)/pmio.o
 
 build: clean mkdir $(TREE_BINARYS)
 	dd if=$(PATH_TMP)/boot.bin bs=512 count=1 > $(FILE_OUT)
 	dd if=$(PATH_TMP)/kernel.bin >> $(FILE_OUT)
- 
+	truncate -s 16K $(FILE_OUT)
+
 run: build
 	qemu-system-i386 -hda $(FILE_OUT)
 
@@ -55,6 +58,10 @@ $(PATH_TMP)/console.o:
 	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/console.c -o $(PATH_TMP)/console.o
 $(PATH_TMP)/memory.o:
 	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/memory.c -o $(PATH_TMP)/memory.o
+$(PATH_TMP)/interrupt.o:
+	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/interrupt.c -o $(PATH_TMP)/interrupt.o
+$(PATH_TMP)/pmio.o:
+	nasm -f elf -g $(PATH_LIB)/pmio.asm -o $(PATH_TMP)/pmio.o
 
 # ? TOOLS
 mkdir:

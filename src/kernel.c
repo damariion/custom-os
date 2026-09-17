@@ -1,10 +1,11 @@
+#include <interrupt.h>
 #include <console.h>
 #include <memory.h>
+#include <pmio.h>
 
 void kmain()
 {
-    char str[64] = {0};
-    memset(str, 'A', 63);
-    
-    print(str);
+
+    ins8(0x1234);
+
 }

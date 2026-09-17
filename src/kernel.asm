@@ -1,11 +1,14 @@
 BITS 32
-extern clear
+extern conclear
+extern intnew
 extern kmain
 
 _kmain:
 
-    call clear
+    call conclear
+    call intnew
     call kmain
+    
     jmp $
-
+ 
 times 32 - ($-$$) db 0
