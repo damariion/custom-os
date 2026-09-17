@@ -31,10 +31,10 @@ gdt.null:
     dd 0
     dd 0
 gdt.code: ; 0x08
-    dw 0xFFFF
-    dw 0
+    dw 0xFFFF ; base
+    dw 0      ; limit
     db 0
-    dw 0xCF9A
+    dw 0xCF9A ; access (along with some legacy stuff)
     db 0
 gdt.data: ; 0x10
     dw 0xFFFF
@@ -60,73 +60,68 @@ init.protected:
     mov esp, ebp
 
     ; place kernel in memory
-    mov ebx, 1
-    mov ecx, 32
+    mov cl, 32
     mov edi, 0x10000
     call disk.read
 
     jmp edi
 
-disk.read:; (sector->ebx, count->ecx, output->edi)
+disk.read:; (count->cl, output->edi)
 
-    pushfd
+    cld
     pushad
-    
-    ; set: drive + LBA[24:]
-    mov edx, 0x1F6
-    mov eax, ebx
-    shr eax, 24
-    or al, 0xE0
+
+    ; set: mode, drive, LBA[24:27]
+    mov dx, 0x1F6
+    mov al, 0xE0
     out dx, al
 
-    ; set: sector count
-    mov edx, 0x1F2
+    ; set: sector amount
+    mov dx, 0x1F2
     mov al, cl
     out dx, al
 
-    ; set: LBA[:7]
-    mov edx, 0x1F3
-    mov eax, ebx
+    ; set: LBA = 1
+    mov dx, 0x1F5
+    xor al, al
+    out dx, al
+    dec dx
+    out dx, al
+    dec dx
+    inc al
     out dx, al
 
-    ; set: LBA[8:15]
-    mov edx, 0x1F4
-    mov eax, ebx
-    shr eax, 8
-    out dx, al
-
-    ; set: LBA[16:23]
-    mov edx, 0x1F5
-    mov eax, ebx
-    shr eax, 16
-    out dx, al
-
-    ; call: read with retry
-    mov edx, 0x1F7
+    ; set: mode = READ
+    mov dx, 0x1F7
     mov al, 0x20
     out dx, al
 
-    ; TODO: fix ATA PIO bug
-    ; ! don't read all sectors at once
-    ; ! verify BSY, DRQ per sector.
+    ; backup: counter
+    mov bl, cl
 
-.await:
-
-    ; test: DRQ set?
+.next:
+    mov dx, 0x1F7
+.busy:
+    
     in al, dx
-    test al, 8
-    jz .await
+    test al, 0x80 ; BSY
+    jne .busy
+    test al, 0x01 ; ERR (e.g. disk < cl*512)
+    jnz .done
+    test al, 0x08 ; DRQ
+    je .busy
 
-    ; copy: sectors
-    mov eax, 256 ; amount of words
-    mul ecx
-    mov ecx, eax
-    mov edx, 0x1F0
-    cld
+    ; copy: disk -> edi
+    mov dx, 0x1F0
+    mov ecx, 256
     rep insw
 
+    dec bl
+    jnz .next
+
+.done:
+
     popad
-    popfd
     ret
 
 times 510 - ($-$$) db 0

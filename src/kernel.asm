@@ -8,4 +8,4 @@ _kmain:
     call kmain
     jmp $
 
-times 32 - ($-$$) db 0 
+times 32 - ($-$$) db 0

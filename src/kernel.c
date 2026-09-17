@@ -3,5 +3,8 @@
 
 void kmain()
 {
-    print("Hello world!");
+    char str[64] = {0};
+    memset(str, 'A', 63);
+    
+    print(str);
 }

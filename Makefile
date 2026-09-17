@@ -3,7 +3,7 @@ NAME = os-build
 TYPE = iso
 
 # executed before 'c' (empty means nothing)
-DBG_CMD = break _kmain
+DBG_CMD =
 
 # ? FLAGS
 FLAG_LD = -T linker.ld
@@ -24,8 +24,7 @@ TREE_LIBRARY = $(PATH_TMP)/memory.o $(PATH_TMP)/console.o
 build: clean mkdir $(TREE_BINARYS)
 	dd if=$(PATH_TMP)/boot.bin bs=512 count=1 > $(FILE_OUT)
 	dd if=$(PATH_TMP)/kernel.bin >> $(FILE_OUT)
-	dd if=/dev/zero bs=512 count=1 >> $(FILE_OUT)
-
+ 
 run: build
 	qemu-system-i386 -hda $(FILE_OUT)
 
