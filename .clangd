@@ -9,3 +9,4 @@ CompileFlags:
         - -mgeneral-regs-only
         - -Wall
         - -Wextra
+        - -Wno-unused-parameter

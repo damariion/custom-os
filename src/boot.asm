@@ -56,12 +56,12 @@ init.protected:
     mov ss, ax
     mov fs, ax
     mov gs, ax
-    mov ebp, 0x5000
+    mov ebp, 0x9FC00
     mov esp, ebp
 
     ; place kernel in memory
     mov cl, 31
-    mov edi, 0x10000
+    mov edi, 0x100000
     call disk.read
 
     jmp edi

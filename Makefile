@@ -7,21 +7,23 @@ DBG_CMD = break _kmain
 
 # ? FLAGS
 FLAG_LD = -T linker.ld
-FLAG_CC = -g -O0 -ffreestanding -nostdlib -mgeneral-regs-only -Isrc/include -Wall -Wextra
+FLAG_NS = -f elf -g
+FLAG_CC = -g -O0 -ffreestanding -nostdlib -mgeneral-regs-only \
+		  -Isrc/include -Wno-unused-parameter -Wall -Wextra
 
 # ? PATHS
 PATH_SRC = src
 PATH_OUT = out
 PATH_LIB = src/library
-PATH_INT = $(PATH_LIB)/interrupts
+PATH_INT = $(PATH_LIB)/interrupt
 PATH_TMP = out/cache
 FILE_OUT = $(PATH_OUT)/$(NAME).$(TYPE)
 
 # ? TREES
 TREE_BINARYS = $(PATH_TMP)/boot.bin $(PATH_TMP)/kernel.bin
 TREE_OBJECTS = $(PATH_TMP)/kernel.asm.o $(TREE_LIBRARY) $(PATH_TMP)/kernel.c.o
-TREE_LIBRARY = $(PATH_TMP)/memory.o $(PATH_TMP)/console.o $(PATH_TMP)/interrupt.o \
-			   $(PATH_TMP)/pmio.o
+TREE_LIBRARY = $(PATH_TMP)/memory.o $(PATH_TMP)/console.o $(PATH_TMP)/pmio.o \
+			   $(PATH_TMP)/interrupt.c.o $(PATH_TMP)/interrupt.asm.o 
 
 build: clean mkdir $(TREE_BINARYS)
 	dd if=$(PATH_TMP)/boot.bin bs=512 count=1 > $(FILE_OUT)
@@ -37,7 +39,7 @@ debug: build
 		-ex "set disassembly-flavor intel" \
 		-ex "set architecture i386:intel" \
 		-ex "target remote | qemu-system-i386 -hda $(FILE_OUT) -S -gdb stdio" \
-		-ex "add-symbol-file $(PATH_TMP)/kernel.asm.o 0x10000" \
+		-ex "add-symbol-file $(PATH_TMP)/kernel.asm.o 0x100000" \
 		-ex "display/i \$$pc" \
 		-ex "$(DBG_CMD)" \
 		-ex 'c'
@@ -49,7 +51,7 @@ $(PATH_TMP)/kernel.bin: $(TREE_OBJECTS)
 $(PATH_TMP)/kernel.c.o:
 	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_SRC)/kernel.c -o $(PATH_TMP)/kernel.c.o
 $(PATH_TMP)/kernel.asm.o:
-	nasm -f elf -g $(PATH_SRC)/kernel.asm -o $(PATH_TMP)/kernel.asm.o
+	nasm $(FLAG_NS) $(PATH_SRC)/kernel.asm -o $(PATH_TMP)/kernel.asm.o
 $(PATH_TMP)/boot.bin:
 	nasm -f bin $(PATH_SRC)/boot.asm -o $(PATH_TMP)/boot.bin
 
@@ -58,10 +60,12 @@ $(PATH_TMP)/console.o:
 	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/console.c -o $(PATH_TMP)/console.o
 $(PATH_TMP)/memory.o:
 	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/memory.c -o $(PATH_TMP)/memory.o
-$(PATH_TMP)/interrupt.o:
-	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/interrupt.c -o $(PATH_TMP)/interrupt.o
 $(PATH_TMP)/pmio.o:
-	nasm -f elf -g $(PATH_LIB)/pmio.asm -o $(PATH_TMP)/pmio.o
+	nasm $(FLAG_NS) $(PATH_LIB)/pmio.asm -o $(PATH_TMP)/pmio.o
+$(PATH_TMP)/interrupt.c.o:
+	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_INT)/interrupt.c -o $(PATH_TMP)/interrupt.c.o
+$(PATH_TMP)/interrupt.asm.o:
+	nasm $(FLAG_NS) $(PATH_INT)/interrupt.asm -o $(PATH_TMP)/interrupt.asm.o
 
 # ? TOOLS
 mkdir:

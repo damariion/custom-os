@@ -1,14 +1,24 @@
 BITS 32
+
+extern intrst
+extern intpic
+
 extern conclear
-extern intnew
 extern kmain
+
+_clean:
+
+    ; stabilise interrupts
+    call intrst
+    call intpic    
+    sti
+
+    ; clear console
+    call conclear
 
 _kmain:
 
-    call conclear
-    call intnew
     call kmain
-    
     jmp $
  
-times 32 - ($-$$) db 0
+times 128 - ($-$$) db 0
