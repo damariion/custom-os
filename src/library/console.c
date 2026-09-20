@@ -1,19 +1,16 @@
 #include "types/rational.h"
 #include <console.h>
 
-axes_t   __console_state_axes = {.x = 0, .y = 0};
-colour_t __console_state_tone = white;
+axes_t   console_static_axes = {.x = 0, .y = 0};
+colour_t console_static_tone = white;
 
 void __console_set_axes(axes_t axes, char value)
 {
     CONSOLE_PTR_MEMORY[(axes.y * CONSOLE_MAX_WIDTH) + axes.x] 
-        = (__console_state_tone << 8) | value;
+        = (console_static_tone << 8) | value;
 }
 
-void concursor(axes_t axes)     { __console_state_axes = axes; }
-void concolour(colour_t colour) { __console_state_tone = colour; }
-
-void conclear(void)
+void clear(void)
 {
     for (u16 x = 0; x < CONSOLE_MAX_WIDTH; x++)
     {
@@ -22,18 +19,18 @@ void conclear(void)
     }
 }
 
-void conwrite(const char* text)
+void print(const char* text)
 {
     while (*text)
     {
         if (*text == '\n')
         {
-            __console_state_axes.y++;
-            __console_state_axes.x=0;
+            console_static_axes.y++;
+            console_static_axes.x=0;
             text++; continue;
         }
 
-        __console_set_axes(__console_state_axes, *text++);
-        __console_state_axes.x++;
+        __console_set_axes(console_static_axes, *text++);
+        console_static_axes.x++;
     }
 }

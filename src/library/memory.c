@@ -20,5 +20,5 @@ bool memcmp(void* ptr_1, void* ptr_2, u32 size)
             return false;
     }
     
-    return true;
+    return true; 
 }
