@@ -1,20 +1,20 @@
 BITS 32
 
-extern kinterrupt_reset_registry
-extern kinterrupt_reset_controller
+extern intrst
+extern intpic
 
-extern clear
+extern conclear
 extern kmain
 
 _clean:
 
     ; stabilise interrupts
-    call kinterrupt_reset_registry
-    call kinterrupt_reset_controller
+    call intrst
+    call intpic    
     sti
 
     ; clear console
-    call clear
+    call conclear
 
 _kmain:
 

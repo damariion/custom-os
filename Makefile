@@ -15,15 +15,15 @@ FLAG_CC = -g -O0 -ffreestanding -nostdlib -mgeneral-regs-only \
 PATH_SRC = src
 PATH_OUT = out
 PATH_LIB = src/library
-PATH_KRL = $(PATH_LIB)/kernel
+PATH_INT = $(PATH_LIB)/interrupt
 PATH_TMP = out/cache
 FILE_OUT = $(PATH_OUT)/$(NAME).$(TYPE)
 
 # ? TREES
 TREE_BINARYS = $(PATH_TMP)/boot.bin $(PATH_TMP)/kernel.bin
 TREE_OBJECTS = $(PATH_TMP)/kernel.asm.o $(TREE_LIBRARY) $(PATH_TMP)/kernel.c.o
-TREE_LIBRARY = $(PATH_TMP)/memory.o $(PATH_TMP)/console.o $(PATH_TMP)/kpmio.o \
-			   $(PATH_TMP)/kinterrupt.c.o $(PATH_TMP)/kinterrupt.asm.o $(PATH_TMP)/kmemory.o
+TREE_LIBRARY = $(PATH_TMP)/memory.o $(PATH_TMP)/console.o $(PATH_TMP)/pmio.o \
+			   $(PATH_TMP)/interrupt.c.o $(PATH_TMP)/interrupt.asm.o 
 
 build: clean mkdir $(TREE_BINARYS)
 	dd if=$(PATH_TMP)/boot.bin bs=512 count=1 > $(FILE_OUT)
@@ -60,14 +60,12 @@ $(PATH_TMP)/console.o:
 	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/console.c -o $(PATH_TMP)/console.o
 $(PATH_TMP)/memory.o:
 	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_LIB)/memory.c -o $(PATH_TMP)/memory.o
-$(PATH_TMP)/kmemory.o:
-	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_KRL)/kmemory.c -o $(PATH_TMP)/kmemory.o
-$(PATH_TMP)/kpmio.o:
-	nasm $(FLAG_NS) $(PATH_KRL)/kpmio.asm -o $(PATH_TMP)/kpmio.o
-$(PATH_TMP)/kinterrupt.c.o:
-	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_KRL)/kinterrupt/kinterrupt.c -o $(PATH_TMP)/kinterrupt.c.o
-$(PATH_TMP)/kinterrupt.asm.o:
-	nasm $(FLAG_NS) $(PATH_KRL)/kinterrupt/kinterrupt.asm -o $(PATH_TMP)/kinterrupt.asm.o
+$(PATH_TMP)/pmio.o:
+	nasm $(FLAG_NS) $(PATH_LIB)/pmio.asm -o $(PATH_TMP)/pmio.o
+$(PATH_TMP)/interrupt.c.o:
+	i686-elf-gcc $(FLAG_CC) -std=gnu99 -c $(PATH_INT)/interrupt.c -o $(PATH_TMP)/interrupt.c.o
+$(PATH_TMP)/interrupt.asm.o:
+	nasm $(FLAG_NS) $(PATH_INT)/interrupt.asm -o $(PATH_TMP)/interrupt.asm.o
 
 # ? TOOLS
 mkdir:

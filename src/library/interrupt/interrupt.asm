@@ -1,11 +1,11 @@
 SECTION .nasm
 
-global kinterrupt_nullfn
-kinterrupt_nullfn: 
+global intnull
+intnull: 
     iret
 
-global kinterrupt_reset_controller
-kinterrupt_reset_controller:
+global intpic
+intpic:
     
     ; init
     mov al, 0x11

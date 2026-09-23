@@ -9,5 +9,8 @@
 typedef struct { u8 x; u8 y; } axes_t;
 typedef enum { black, blue, green, cyan, red, magenta, brown, white, grey, yellow = 0xE } colour_t;
 
-void clear(void);
-void print(const char* text);
+void conclear(void);
+void conwrite(const char* text);
+
+void concursor(axes_t axes);
+void concolour(colour_t colour);
